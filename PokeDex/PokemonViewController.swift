@@ -13,12 +13,41 @@ class PokemonViewController: UIViewController {
     @IBOutlet var typeLabel: UILabel!
     @IBOutlet var type2Label: UILabel?
     @IBOutlet var image: UIImageView!
+    @IBOutlet var button: UIButton!
     
+    var caught = false
     var pokemon: Pokemon!
+    
+    func getImg(url: URL) {
+        let imageTask = URLSession.shared.dataTask(with: url) { (imageData, _, imageError) in
+            if let imageError = imageError { print(imageError); return }
+            DispatchQueue.main.async {
+                let image = UIImage(data: imageData!)
+                
+                self.image.image = image
+            }
+        }
+        imageTask.resume()
+    }
+    
+    func capitalize(text: String) -> String {
+        return text.prefix(1).uppercased() + text.dropFirst()
+    }
+    
+    @IBAction func toggleCatch() {
+        caught = !caught
+        if caught {
+            button.setTitle("Free", for: .normal)
+        } else {
+            button.setTitle("Catch 'em", for: .normal)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        nameLabel.text = ""
+        numberLabel.text = ""
         typeLabel.text = ""
         type2Label?.text = ""
         
@@ -36,7 +65,7 @@ class PokemonViewController: UIViewController {
                 let imgUrl = URL(string: pokemonData.sprites.front_default)
                 guard let iu = imgUrl else { return }
                 
-                self.getImg(url: iu, outlet: self.image)
+                self.getImg(url: iu)
                 
                 DispatchQueue.main.async {
                     self.nameLabel.text = self.capitalize(text: self.pokemon.name)
@@ -57,20 +86,5 @@ class PokemonViewController: UIViewController {
             }
         }.resume()
     }
-    
-    func getImg(url: URL, outlet: UIImageView) {
-        let imageTask = URLSession.shared.dataTask(with: url) { (imageData, _, imageError) in
-            if let imageError = imageError { print(imageError); return }
-            DispatchQueue.main.async {
-                let image = UIImage(data: imageData!)
-                
-                outlet.image = image
-            }
-        }
-        imageTask.resume()
-    }
-    
-    func capitalize(text: String) -> String {
-        return text.prefix(1).uppercased() + text.dropFirst()
-    }
+
 }
