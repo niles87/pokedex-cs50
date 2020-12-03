@@ -7,9 +7,11 @@
 
 import UIKit
 
-class ViewController: UITableViewController {
+class ViewController: UITableViewController, UISearchBarDelegate {
 
+    @IBOutlet var searchBar: UISearchBar!
     var pokemon: [Pokemon] = []
+    var searchedPokemon: [Pokemon]! = []
     
     func capitalize(text: String) -> String {
         return text.prefix(1).uppercased() + text.dropFirst()
@@ -17,6 +19,7 @@ class ViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        searchBar.delegate = self
         let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=151")
         guard let req = url else {
             return
@@ -29,10 +32,10 @@ class ViewController: UITableViewController {
                 let pokemonList = try JSONDecoder().decode(PokemonList.self, from: data)
                 
                 self.pokemon = pokemonList.results
+                self.searchedPokemon = self.pokemon
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
-                
             }
             catch let error{
                 print("\(error)")
@@ -45,12 +48,12 @@ class ViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pokemon.count
+        return searchedPokemon.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PokemonCell", for: indexPath)
-        cell.textLabel?.text = capitalize(text: pokemon[indexPath.row].name)
+        cell.textLabel?.text = capitalize(text: searchedPokemon[indexPath.row].name)
         return cell
     }
     
@@ -60,6 +63,11 @@ class ViewController: UITableViewController {
                 destination.pokemon = pokemon[tableView.indexPathForSelectedRow!.row]
             }
         }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchedPokemon = searchText.isEmpty ? pokemon : pokemon.filter { $0.name.contains(searchText.lowercased()) }
+        tableView.reloadData()
     }
 }
 
