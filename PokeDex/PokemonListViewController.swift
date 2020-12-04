@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  PokemonListViewController.swift
 //  PokeDex
 //
 //  Created by Niles Bingham on 12/2/20.
