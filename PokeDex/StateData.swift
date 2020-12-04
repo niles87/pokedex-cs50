@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+struct CatchDict {
+    var c = [String: Bool]()
+}
